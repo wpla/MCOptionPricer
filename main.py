@@ -14,16 +14,17 @@ def discount(value, r, time=1):
 
 
 if __name__ == "__main__":
-    risk_free_interest_rate = 0.05
 
+    risk_free_interest_rate = 0.05
     asset_price = 100
     sigma = 0.2
     time_to_maturity = 1
     strike = 120
     binary_payoff = 100
+    barrier = 140
 
-    option_pricer = OptionPricer(simulations=100000, steps=100)
-    option_pricer.generate_data(asset_price, sigma, mu=risk_free_interest_rate)
+    option_pricer = OptionPricer()
+    option_pricer.generate_data(asset_price, sigma, mu=risk_free_interest_rate, simulations=100000, steps=100)
 
     call_option = Option(strike)
     payoff = option_pricer.get_price(call_option)
@@ -38,6 +39,12 @@ if __name__ == "__main__":
     print("Plain Vanilla Put Option (Monte Carlo): %.2f" % (discounted_payoff, ))
     print("Plain Vanilla Put Option (Black Scholes): %.2f" %
           (put_option.black_scholes(asset_price, sigma, risk_free_interest_rate, time_to_maturity),))
+
+    barrier_call_option = BarrierOption(strike, barrier, option_type=OptionType.CALL,
+                                        barrier_type=BarrierOption.KNOCK_OUT, barrier_level=BarrierOption.UP)
+    payoff = option_pricer.get_price(barrier_call_option)
+    discounted_payoff = discount(payoff, risk_free_interest_rate)
+    print("Barrier Call Option (Monte Carlo): %.2f" % (discounted_payoff, ))
 
     binary_call_option = BinaryOption(strike, payoff=binary_payoff)
     payoff = option_pricer.get_price(binary_call_option)
