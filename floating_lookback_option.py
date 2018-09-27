@@ -9,7 +9,9 @@ class FloatingLookbackOption:
 
     def payoff(self, asset_price, min_asset_price):
         if self.option_type == OptionTypes.CALL:
-            return asset_price - min_asset_price
+            return max(asset_price - min_asset_price, 0)
+        elif self.option_type == OptionTypes.PUT:
+            return max(min_asset_price - asset_price, 0)
         return 0
 
     def payoff_from_series(self, series):

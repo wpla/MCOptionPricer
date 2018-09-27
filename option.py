@@ -12,8 +12,9 @@ class Option:
 
     def payoff(self, asset_price):
         if self.option_type == OptionTypes.CALL:
-            if asset_price > self.strike:
-                return asset_price - self.strike
+            return max(asset_price - self.strike, 0)
+        elif self.option_type == OptionTypes.PUT:
+            return max(self.strike - asset_price, 0)
         return 0
 
     def payoff_from_series(self, series):
@@ -21,8 +22,12 @@ class Option:
         return self.payoff(asset_price)
 
     def black_scholes(self, asset_price, sigma, r, time_to_maturity):
+        d1 = (np.log(asset_price / self.strike) + (r + 1 / 2 * sigma ** 2) * time_to_maturity) / \
+                (sigma * np.sqrt(time_to_maturity))
+        d2 = (np.log(asset_price / self.strike) + (r - 1 / 2 * sigma ** 2) * time_to_maturity) / \
+                (sigma * np.sqrt(time_to_maturity))
         if self.option_type == OptionTypes.CALL:
-            d1 = (np.log(asset_price/self.strike) + (r + 1/2*sigma**2)*time_to_maturity)/(sigma*np.sqrt(time_to_maturity))
-            d2 = (np.log(asset_price/self.strike) + (r - 1/2*sigma**2)*time_to_maturity)/(sigma*np.sqrt(time_to_maturity))
             return asset_price*norm.cdf(d1) - self.strike*np.exp(-r*time_to_maturity)*norm.cdf(d2)
+        elif self.option_type == OptionTypes.PUT:
+            return -asset_price*norm.cdf(-d1) + self.strike*np.exp(-r*time_to_maturity)*norm.cdf(-d2)
         return 0

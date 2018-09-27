@@ -10,8 +10,9 @@ class AsianOption:
 
     def payoff(self, avg_asset_price):
         if self.option_type == OptionTypes.CALL:
-            if avg_asset_price > self.strike:
-                return avg_asset_price - self.strike
+            return max(avg_asset_price - self.strike, 0)
+        if self.option_type == OptionTypes.PUT:
+            return max(self.strike - avg_asset_price, 0)
         return 0
 
     def payoff_from_series(self, series):

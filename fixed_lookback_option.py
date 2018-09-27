@@ -10,8 +10,9 @@ class FixedLookbackOption:
 
     def payoff(self, max_asset_price):
         if self.option_type == OptionTypes.CALL:
-            if max_asset_price > self.strike:
-                return max_asset_price - self.strike
+            return max(max_asset_price - self.strike, 0)
+        if self.option_type == OptionTypes.PUT:
+            return max(self.strike - max_asset_price, 0)
         return 0
 
     def payoff_from_series(self, series):
