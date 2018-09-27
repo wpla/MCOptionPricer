@@ -1,4 +1,4 @@
-from option_types import OptionTypes
+from option_types import OptionType
 
 
 class BarrierOption:
@@ -7,7 +7,7 @@ class BarrierOption:
     (KNOCK_IN, KNOCK_OUT) = range(2)
     (UP, DOWN) = range(2)
 
-    def __init__(self, strike, barrier, option_type=OptionTypes.CALL, barrier_type=KNOCK_OUT, barrier_level=UP):
+    def __init__(self, strike, barrier, option_type=OptionType.CALL, barrier_type=KNOCK_OUT, barrier_level=UP):
         self.strike = strike
         self.barrier = barrier
         self.option_type = option_type
@@ -15,9 +15,9 @@ class BarrierOption:
         self.barrier_level = barrier_level
 
     def calc_payoff(self, asset_price):
-        if self.option_type == OptionTypes.CALL:
+        if self.option_type == OptionType.CALL:
             return max(asset_price - self.strike, 0)
-        elif self.option_type == OptionTypes.PUT:
+        elif self.option_type == OptionType.PUT:
             return max(self.strike - asset_price, 0)
         return 0
 

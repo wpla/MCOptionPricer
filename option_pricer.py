@@ -36,3 +36,10 @@ class OptionPricer:
         payoffs = pd.Series(payoff_data)
         return payoffs.mean()
 
+    def black_scholes(self, option, sigma, r, time_to_maturity, D=0):
+        payoff_data = []
+        for n in self.data.columns:
+            payoff_data.append(option.black_scholes_from_series(self.data[n], sigma, r, time_to_maturity, D))
+        payoffs = pd.Series(payoff_data)
+        return payoffs.mean()
+
