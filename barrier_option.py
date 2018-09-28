@@ -39,8 +39,8 @@ class BarrierOption:
         return 0
 
     def payoff_from_series(self, series):
-        asset_price = series.iloc[-1]
+        last_asset_price = series.iloc[-1]
         max_asset_price = series.max()
         min_asset_price = series.min()
-        return self.payoff(max_asset_price, min_asset_price)
+        return self.payoff(last_asset_price, max_asset_price, min_asset_price)
 

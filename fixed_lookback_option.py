@@ -1,5 +1,5 @@
 from option_types import OptionType
-import numpy as np
+from numpy import log, exp, sqrt
 from scipy.stats import norm
 
 
@@ -10,18 +10,19 @@ class FixedLookbackOption:
         self.strike = strike
         self.option_type = option_type
 
-    def payoff(self, max_asset_price):
+    def payoff(self, min_asset_price, max_asset_price):
         if self.option_type == OptionType.CALL:
             return max(max_asset_price - self.strike, 0)
-        if self.option_type == OptionType.PUT:
-            return max(self.strike - max_asset_price, 0)
+        elif self.option_type == OptionType.PUT:
+            return max(self.strike - min_asset_price, 0)
         return 0
 
     def payoff_from_series(self, series):
         max_asset_price = series.max()
-        return self.payoff(max_asset_price)
+        min_asset_price = series.min()
+        return self.payoff(min_asset_price, max_asset_price)
 
-    def black_scholes(self, asset_price, asset_min, asset_max, sigma, r, time_to_maturity, D=0):
+    def black_scholes_price(self, asset_price, asset_min, asset_max, sigma, r, time_to_maturity=1, D=0):
         """ Calculates value of option according to Black-Scholes-Formula.
 
         Arguments:
@@ -31,58 +32,67 @@ class FixedLookbackOption:
             sigma: volatility of underlying asset in std-deviations of returns
             r: the risk-free interest rate
             time_to_maturity: time to maturity in years
-            D: cumulative dividends pays until maturity of the option
+            D: cumulative dividends of underlying asset payed until maturity of the option
         """
 
+        S = asset_price
+        E = self.strike
+        t = time_to_maturity
+        b = r - D
+
         if self.option_type == OptionType.CALL:
-            if self.strike > asset_max:
-                d1 = (np.log(asset_price / self.strike) + (r - D + 1 / 2 * sigma ** 2) * time_to_maturity) / \
-                     (sigma * np.sqrt(time_to_maturity))
-                d2 = d1 - (sigma * np.sqrt(time_to_maturity))
-                return asset_price * np.exp(-D * time_to_maturity) * norm.cdf(d1) - \
-                       self.strike * np.exp(-r * time_to_maturity) * norm.cdf(d2) + \
-                       asset_price * np.exp(-r * time_to_maturity) * (sigma ** 2) / (2 * (r - D)) * \
-                       (-(asset_price / self.strike) ** -(2 * (r - D) / sigma ** 2) *
-                          norm.cdf(d1 - (2 * (r - D) * np.sqrt(time_to_maturity)) / sigma) +
-                          np.exp((r - D) * time_to_maturity) * norm.cdf(d1))
+            M = asset_max
+            if E > M:
+                d1 = (log(S / E) + (r - D + 1 / 2 * (sigma ** 2)) * t) / \
+                     (sigma * sqrt(t))
+                d2 = d1 - sigma * sqrt(t)
+                C = S * exp(-D * t) * norm.cdf(d1) - \
+                    E * exp(-r * t) * norm.cdf(d2) + \
+                    S * exp(-r * t) * (sigma ** 2) / (2 * b) * \
+                    (-(S / E) ** -(2 * b / sigma ** 2) *
+                     norm.cdf(d1 - (2 * b * sqrt(t)) / sigma) +
+                     exp(b * t) * norm.cdf(d1))
+                return C
             else:
-                d1 = (np.log(asset_price / asset_max) + (r - D + 1 / 2 * sigma ** 2) * time_to_maturity) / \
-                     (sigma * np.sqrt(time_to_maturity))
-                d2 = d1 - (sigma * np.sqrt(time_to_maturity))
-                return (asset_max - self.strike) * np.exp(-r * time_to_maturity) + \
-                       asset_price * np.exp(-D * time_to_maturity) * norm.cdf(d1) - \
-                       asset_max * np.exp(-r * time_to_maturity) * norm.cdf(d2) - \
-                       asset_price * np.exp(-r * time_to_maturity) * (sigma ** 2) / (2 * (r - D)) * \
-                       ((asset_price / asset_max) ** -(2 * (r - D) / sigma ** 2) *
-                          norm.cdf(-d1 - (2 * (r - D) * np.sqrt(time_to_maturity)) / sigma) +
-                          np.exp((r - D) * time_to_maturity) * norm.cdf(d1))
+                d1 = (log(S / M) + (r - D + 1 / 2 * (sigma ** 2)) * t) / \
+                     (sigma * sqrt(t))
+                d2 = d1 - sigma * sqrt(t)
+                C = (M - E) * exp(-r * t) + \
+                    S * exp(-D * t) * norm.cdf(d1) - \
+                    M * exp(-r * t) * norm.cdf(d2) + \
+                    S * exp(-r * t) * (sigma ** 2) / (2 * b) * \
+                    (-(S / M) ** -(2 * b / sigma ** 2) *
+                     norm.cdf(d1 - (2 * b * sqrt(t)) / sigma) +
+                     exp(b * t) * norm.cdf(d1))
+                return C
 
         elif self.option_type == OptionType.PUT:
-            if self.strike < asset_min:
-                d1 = (np.log(asset_price / self.strike) + (r - D + 1 / 2 * sigma ** 2) * time_to_maturity) / \
-                     (sigma * np.sqrt(time_to_maturity))
-                d2 = d1 - (sigma * np.sqrt(time_to_maturity))
-                return self.strike * np.exp(-r * time_to_maturity) * norm.cdf(-d2) - \
-                       asset_price * np.exp(-D * time_to_maturity) * norm.cdf(-d1) + \
-                       asset_price * np.exp(-r * time_to_maturity) * (sigma ** 2) / (2 * (r - D)) * \
-                       ((asset_price / self.strike) ** -(2 * (r - D) / sigma ** 2) *
-                          norm.cdf(-d1 + (2 * (r - D) * np.sqrt(time_to_maturity)) / sigma) -
-                          np.exp((r - D) * time_to_maturity) * norm.cdf(-d1))
+            M = asset_min
+            if E < M:
+                d1 = (log(S / E) + (b + 1 / 2 * (sigma ** 2)) * t) / \
+                     (sigma * sqrt(t))
+                d2 = d1 - sigma * sqrt(t)
+                P = E * exp(-r * t) * norm.cdf(-d2) - \
+                    S * exp(-D * t) * norm.cdf(-d1) + \
+                    S * exp(-r * t) * (sigma ** 2) / (2 * b) * \
+                    ((S / E) ** -(2 * b / (sigma ** 2)) *
+                     norm.cdf(-d1 + (2 * b * sqrt(t)) / sigma) -
+                     exp(b * t) * norm.cdf(-d1))
+                return 333
             else:
-                d1 = (np.log(asset_price / asset_min) + (r - D + 1 / 2 * sigma ** 2) * time_to_maturity) / \
-                     (sigma * np.sqrt(time_to_maturity))
-                d2 = d1 - (sigma * np.sqrt(time_to_maturity))
-                return (self.strike - asset_min) * np.exp(-r * time_to_maturity) - \
-                       asset_price * np.exp(-D * time_to_maturity) * norm.cdf(-d1) + \
-                       asset_min * np.exp(-r * time_to_maturity) * norm.cdf(-d2) + \
-                       asset_price * np.exp(-r * time_to_maturity) * (sigma ** 2) / (2 * (r - D)) * \
-                       ((asset_price / asset_min) ** -(2 * (r - D) / sigma ** 2) *
-                          norm.cdf(-d1 + (2 * (r - D) * np.sqrt(time_to_maturity)) / sigma) -
-                          np.exp((r - D) * time_to_maturity) * norm.cdf(-d1))
+                d1 = (log(S / M) + (b + 1 / 2 * (sigma ** 2)) * t) / \
+                     (sigma * sqrt(t))
+                d2 = d1 - sigma * sqrt(t)
+                P = (E - M) * exp(-r * t) - \
+                    S * exp(-D * t) * norm.cdf(-d1) + \
+                    M * exp(-r * t) * norm.cdf(-d2) + \
+                    S * exp(-r * t) * (sigma ** 2) / (2 * b) * \
+                    ((S / M) ** -(2 * b / (sigma ** 2)) *
+                     norm.cdf(-d1 + (2 * b * sqrt(t)) / sigma) -
+                     exp(b * t) * norm.cdf(-d1))
+                return P
         return 0
 
-    def black_scholes_from_series(self, series, sigma, r, time_to_maturity, D=0):
-        first_asset_price = series.iloc[0]
-        min_asset_price = series.min()
-        max_asset_price = series.max()
-        return self.black_scholes(first_asset_price, min_asset_price, max_asset_price, sigma, r, time_to_maturity, D)
+    def black_scholes_from_series(self, series, sigma, r, time_to_maturity=1, D=0):
+        asset_price = series.iloc[0]
+        return self.black_scholes_price(asset_price, asset_price, asset_price, sigma, r, time_to_maturity, D)
