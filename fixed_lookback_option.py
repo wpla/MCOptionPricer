@@ -93,6 +93,3 @@ class FixedLookbackOption:
                 return P
         return 0
 
-    def black_scholes_from_series(self, series, sigma, r, time_to_maturity=1, D=0):
-        asset_price = series.iloc[0]
-        return self.black_scholes_price(asset_price, asset_price, asset_price, sigma, r, time_to_maturity, D)

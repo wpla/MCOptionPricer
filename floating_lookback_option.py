@@ -88,11 +88,3 @@ class FloatingLookbackOption:
                         norm.cdf(d) - exp(-r * t) * sigma ** 2 / (2 * r) * norm.cdf(-d + sigma * sqrt(t)))
         return 0
 
-    def black_scholes_from_series(self, series, sigma, r, time_to_maturity=1, D=0):
-        first_asset_price = series.iloc[0]
-        return self.black_scholes_price(first_asset_price, sigma, r, time_to_maturity, D)
-
-    def black_scholes_from_series_2(self, series, sigma, r, time_to_maturity=1, D=0):
-        last_asset_price = series.iloc[0]
-        return self.black_scholes_price_2(last_asset_price, last_asset_price, last_asset_price, sigma,
-                                          r, time_to_maturity, D)
