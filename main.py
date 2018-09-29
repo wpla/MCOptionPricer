@@ -12,23 +12,23 @@ if __name__ == "__main__":
 
     parser = OptionParser()
     parser.add_option("-r", "--rate", dest="r", type="float",
-                      help="Risk-free interest rate", default=0.05)
+                      help="Risk-free interest rate (Defaul: 50)", default=0.05)
     parser.add_option("-a", "--asset", dest="asset", type="float",
-                      help="Initial asset price", default=100)
+                      help="Initial asset price (Default: 100)", default=100)
     parser.add_option("-s", "--sigma", dest="sigma", type="float",
-                      help="Sigma", default=0.2)
+                      help="Sigma (Default: 0.2)", default=0.2)
     parser.add_option("-t", "--time_to_maturity", dest="t", type="float",
-                      help="Time to maturity", default=1)
+                      help="Time to maturity in years (Default: 1)", default=1)
     parser.add_option("-k", "--strike", dest="strike", type="float",
-                      help="Strike of option", default=120)
+                      help="Strike of option (Default: 120)", default=120)
     parser.add_option("-p", "--binary_payoff", dest="binary_payoff", type="float",
-                      help="Payoff of binary option", default=100)
+                      help="Payoff of binary option (Default: 100)", default=100)
     parser.add_option("--runs", dest="runs", type="int",
-                      help="Simulations runs", default=20)
+                      help="Simulations runs (Default: 100)", default=50)
     parser.add_option("--sim", dest="simulations", type="string",
-                      help="List of number of Monte Carlo Simulations during each run", default="100")
+                      help="List of number of Monte Carlo Simulations during each run", default="1000")
     parser.add_option("--steps", dest="steps", type="int",
-                      help="Number of price movements within each MC simulation", default=100)
+                      help="Number of price movements within each MC simulation (Default: 100)", default=100)
     parser.add_option("--plot_range_x", dest="plot_range_x", type="string",
                       help="Plot range on x axis", default="-2,2")
 
@@ -67,14 +67,14 @@ if __name__ == "__main__":
     simulation = Simulation(option_pricer)
 
     options = {
-        "Plain Vanilla Call Option": Option(strike),
-        "Plain Vanilla Put Option": Option(strike, option_type=OptionType.PUT),
-        "Floating Lookback Call Option": FloatingLookbackOption(),
-        "Floating Lookback Put Option": FloatingLookbackOption(option_type=OptionType.PUT),
-        "Fixed Lookback Call Option": FixedLookbackOption(strike),
+        # "Plain Vanilla Call Option": Option(strike),
+        # "Plain Vanilla Put Option": Option(strike, option_type=OptionType.PUT),
+        # "Floating Lookback Call Option": FloatingLookbackOption(),
+        # "Floating Lookback Put Option": FloatingLookbackOption(option_type=OptionType.PUT),
+        # "Fixed Lookback Call Option": FixedLookbackOption(strike),
         "Fixed Lookback Put Option": FixedLookbackOption(strike, option_type=OptionType.PUT),
-        "Binary Call Option": BinaryOption(strike, payoff=binary_payoff),
-        "Binary Put Option": BinaryOption(strike, payoff=binary_payoff, option_type=OptionType.PUT)
+        # "Binary Call Option": BinaryOption(strike, payoff=binary_payoff),
+        # "Binary Put Option": BinaryOption(strike, payoff=binary_payoff, option_type=OptionType.PUT)
     }
 
     for (name, option) in iter(options.items()):
