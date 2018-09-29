@@ -87,6 +87,8 @@ class Simulation:
         n, bins, patches = plt.hist(self.result.errors, 20, density=True, facecolor='gray')
         x_max = (max([abs(b) for b in bins]))
         x_max = math.ceil(x_max * 10) / 10
+        if x_max < 1:
+            x_max = 1
         y_max = math.ceil(max(n) * 10) / 10
         plt.plot(norm_x, norm_y, color="black", linewidth=0.5)
         plt.xlabel('Error')

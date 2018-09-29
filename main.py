@@ -67,14 +67,14 @@ if __name__ == "__main__":
     simulation = Simulation(option_pricer)
 
     options = {
-        # "Plain Vanilla Call Option": Option(strike),
-        # "Plain Vanilla Put Option": Option(strike, option_type=OptionType.PUT),
-        # "Floating Lookback Call Option": FloatingLookbackOption(),
-        # "Floating Lookback Put Option": FloatingLookbackOption(option_type=OptionType.PUT),
-        # "Fixed Lookback Call Option": FixedLookbackOption(strike),
+        "Plain Vanilla Call Option": Option(strike),
+        "Plain Vanilla Put Option": Option(strike, option_type=OptionType.PUT),
+        "Floating Lookback Call Option": FloatingLookbackOption(),
+        "Floating Lookback Put Option": FloatingLookbackOption(option_type=OptionType.PUT),
+        "Fixed Lookback Call Option": FixedLookbackOption(strike),
         "Fixed Lookback Put Option": FixedLookbackOption(strike, option_type=OptionType.PUT),
-        # "Binary Call Option": BinaryOption(strike, payoff=binary_payoff),
-        # "Binary Put Option": BinaryOption(strike, payoff=binary_payoff, option_type=OptionType.PUT)
+        "Binary Call Option": BinaryOption(strike, payoff=binary_payoff),
+        "Binary Put Option": BinaryOption(strike, payoff=binary_payoff, option_type=OptionType.PUT)
     }
 
     for (name, option) in iter(options.items()):
