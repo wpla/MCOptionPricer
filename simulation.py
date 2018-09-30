@@ -116,7 +116,7 @@ class Simulation:
         prices = []
         print("Running simulations for " + params.option_name)
         for i in range(params.runs):
-            print("%s - %d/%d @%d" % (params.option_name, i, params.runs, params.simulations))
+            print("%s - step %d/%d, N=%d" % (params.option_name, i, params.runs, params.simulations))
             self.option_pricer.run_monte_carlo_simulations(simulations=params.simulations, steps=params.steps)
             price = 0
             if params.sampling_method == SimulationParameters.CONTINUOUS_SAMPLING:
