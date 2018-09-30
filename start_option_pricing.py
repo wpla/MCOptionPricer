@@ -29,6 +29,8 @@ if __name__ == "__main__":
                            " (Default: 100,1000,1000)", default="100,1000,10000")
     parser.add_option("--steps", dest="steps", type="int",
                       help="Number of price movements within each MC simulation (Default: 100)", default=100)
+    parser.add_option("-i", dest="sample_interval", type="float",
+                      help="Sample interval for discrete sampling (Default: 0.1)", default=0.1)
     parser.add_option("-o", "--option_types", dest="option_codes", type="string",
                       help="Option types. Possible values: "
                         "CO = call options, "
@@ -67,6 +69,7 @@ if __name__ == "__main__":
     # params.plot_x_max = x_max
     sims = opts.simulations
     list_of_simulations = [int(x) for x in sims.split(",")]
+    sample_interval = opts.sample_interval
 
     # Create option pricer
     option_pricer = OptionPricer()
@@ -111,9 +114,9 @@ if __name__ == "__main__":
                                                                          risk_free_interest_rate,
                                                                          time_to_maturity)
 
-        for s in list_of_simulations:
+        for N in list_of_simulations:
             print("Running simulation for " + name)
-            params.simulations = s # Number of MC simulations
+            params.simulations = N  # Number of MC simulations
 
             # Simulate continuous sampling
             params.set_sampling_method(SimulationParameters.CONTINUOUS_SAMPLING)
@@ -121,7 +124,7 @@ if __name__ == "__main__":
 
             # Simulate discrete sampling
             params.set_sampling_method(SimulationParameters.DISCRETE_SAMPLING)
-            params.sample_interval = 0.1
+            params.sample_interval = sample_interval
             disc_price = simulation.run(params)
 
             # Output results to console
