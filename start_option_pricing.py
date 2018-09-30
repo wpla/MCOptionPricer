@@ -7,12 +7,11 @@ from option_types import OptionType
 from simulation import *
 from optparse import OptionParser
 
-
 if __name__ == "__main__":
 
     parser = OptionParser()
     parser.add_option("-r", "--rate", dest="r", type="float",
-                      help="Risk-free interest rate (Defaul: 50)", default=0.05)
+                      help="Risk-free interest rate (Default: 0.05)", default=0.05)
     parser.add_option("-a", "--asset", dest="asset", type="float",
                       help="Initial asset price (Default: 100)", default=100)
     parser.add_option("-s", "--sigma", dest="sigma", type="float",
@@ -26,11 +25,23 @@ if __name__ == "__main__":
     parser.add_option("--runs", dest="runs", type="int",
                       help="Simulations runs (Default: 100)", default=50)
     parser.add_option("--sim", dest="simulations", type="string",
-                      help="List of number of Monte Carlo Simulations during each run", default="1000")
+                      help="List of number of Monte Carlo Simulations during each run"
+                           " (Default: 100,1000,1000)", default="100,1000,10000")
     parser.add_option("--steps", dest="steps", type="int",
                       help="Number of price movements within each MC simulation (Default: 100)", default=100)
-    parser.add_option("--plot_range_x", dest="plot_range_x", type="string",
-                      help="Plot range on x axis", default="-2,2")
+    parser.add_option("-o", "--option_types", dest="option_codes", type="string",
+                      help="Option types. Possible values: "
+                        "CO = call options, "
+                        "PO = put options, "
+                        "FLCO = floating lookback call options, "
+                        "FLPO = floating lookback put options, "
+                        "XLCO = fixed strike lookback call options, "
+                        "XLPO = fixed strike lookback put options, "
+                        "BCO = binary call options, "
+                        "BPO = binary put options, "
+                        "A list can be give (e.g. -o CO,PO,XLPO) "
+                        "(Default: CO,PO,FLCO,FLPO,XLCO,BCO,BPO)",
+                      default="CO,PO,FLCO,FLPO,XLCO,XLPO,BCO,BPO")
 
     (opts, args) = parser.parse_args()
 
@@ -51,11 +62,11 @@ if __name__ == "__main__":
     params.runs = opts.runs # Number of simulation runs each running a MC pricing
     params.steps = opts.steps  # Number of asset price movements for each simulation
     params.time_to_maturity = time_to_maturity
-    (x_min, x_max) = [int(x) for x in opts.plot_range_x.split(",")]
-    params.plot_x_min = x_min
-    params.plot_x_max = x_max
-    s = opts.simulations
-    list_of_simulations = [int(x) for x in s.split(",")]
+    # (x_min, x_max) = [int(x) for x in opts.plot_range_x.split(",")]
+    # params.plot_x_min = x_min
+    # params.plot_x_max = x_max
+    sims = opts.simulations
+    list_of_simulations = [int(x) for x in sims.split(",")]
 
     # Create option pricer
     option_pricer = OptionPricer()
@@ -66,18 +77,22 @@ if __name__ == "__main__":
 
     simulation = Simulation(option_pricer)
 
-    options = {
-        "Plain Vanilla Call Option": Option(strike),
-        "Plain Vanilla Put Option": Option(strike, option_type=OptionType.PUT),
-        "Floating Lookback Call Option": FloatingLookbackOption(),
-        "Floating Lookback Put Option": FloatingLookbackOption(option_type=OptionType.PUT),
-        "Fixed Lookback Call Option": FixedLookbackOption(strike),
-        "Fixed Lookback Put Option": FixedLookbackOption(strike, option_type=OptionType.PUT),
-        "Binary Call Option": BinaryOption(strike, payoff=binary_payoff),
-        "Binary Put Option": BinaryOption(strike, payoff=binary_payoff, option_type=OptionType.PUT)
+    option_shortcuts = {
+        "CO": ("Plain Vanilla Call Option", Option(strike)),
+        "PO": ("Plain Vanilla Put Option", Option(strike, option_type=OptionType.PUT)),
+        "FLCO": ("Floating Lookback Call Option", FloatingLookbackOption()),
+        "FLPO": ("Floating Lookback Put Option", FloatingLookbackOption(option_type=OptionType.PUT)),
+        "XLCO": ("Fixed Lookback Call Option", FixedLookbackOption(strike)),
+        "XLPO": ("Fixed Lookback Put Option", FixedLookbackOption(strike, option_type=OptionType.PUT)),
+        "BCO": ("Binary Call Option", BinaryOption(strike, payoff=binary_payoff)),
+        "BPO": ("Binary Put Option", BinaryOption(strike, payoff=binary_payoff, option_type=OptionType.PUT))
     }
 
-    for (name, option) in iter(options.items()):
+    option_codes = opts.option_codes
+    option_codes = option_codes.split(",")
+
+    for option_code in option_codes:
+        (name, option) = option_shortcuts[option_code]
         params.option = option
         params.option_name = name
 

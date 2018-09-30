@@ -1,3 +1,5 @@
+import matplotlib
+matplotlib.use('agg')
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
@@ -77,11 +79,6 @@ class Simulation:
 
         plt.clf()
 
-        # Create data for normal distribution with mean = 0, and variance = error_variance
-
-        norm_x = np.arange(-5, 5, 0.01)
-        norm_y = [norm.pdf(i, loc=0, scale=np.sqrt(self.result.errors_variance)) for i in norm_x]
-
         # Create plot
 
         n, bins, patches = plt.hist(self.result.errors, 20, density=True, facecolor='gray')
@@ -89,6 +86,12 @@ class Simulation:
         x_max = math.ceil(x_max * 10) / 10
         if x_max < 1:
             x_max = 1
+
+        # Create data for normal distribution with mean = 0, and variance = error_variance
+
+        norm_x = np.arange(-x_max, x_max, 0.01)
+        norm_y = [norm.pdf(i, loc=0, scale=np.sqrt(self.result.errors_variance)) for i in norm_x]
+
         y_max = math.ceil(max(n) * 10) / 10
         plt.plot(norm_x, norm_y, color="black", linewidth=0.5)
         plt.xlabel('Error')
@@ -113,7 +116,7 @@ class Simulation:
         prices = []
         print("Running simulations for " + params.option_name)
         for i in range(params.runs):
-            print("%d/%d @%d" % (i, params.runs, params.simulations))
+            print("%s - %d/%d @%d" % (params.option_name, i, params.runs, params.simulations))
             self.option_pricer.run_monte_carlo_simulations(simulations=params.simulations, steps=params.steps)
             price = 0
             if params.sampling_method == SimulationParameters.CONTINUOUS_SAMPLING:

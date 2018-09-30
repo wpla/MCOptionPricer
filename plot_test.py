@@ -1,6 +1,8 @@
-from matplotlib import rcParams
+# from matplotlib import rcParams
 # rcParams['font.family'] = 'serif'
 # rcParams['font.serif'] = ['CMU Serif', 'Times New Roman']
+import matplotlib
+matplotlib.use('agg')
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.stats import norm
@@ -37,4 +39,4 @@ plt.title('Histogram')
 plt.axis([-3, 3, 0, 0.5])
 plt.grid(True)
 plt.savefig("test2.png")
-plt.show()
+# plt.show()
