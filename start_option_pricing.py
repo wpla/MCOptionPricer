@@ -64,9 +64,6 @@ if __name__ == "__main__":
     params.runs = opts.runs # Number of simulation runs each running a MC pricing
     params.steps = opts.steps  # Number of asset price movements for each simulation
     params.time_to_maturity = time_to_maturity
-    # (x_min, x_max) = [int(x) for x in opts.plot_range_x.split(",")]
-    # params.plot_x_min = x_min
-    # params.plot_x_max = x_max
     sims = opts.simulations
     list_of_simulations = [int(x) for x in sims.split(",")]
     sample_interval = opts.sample_interval
