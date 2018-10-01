@@ -20,6 +20,8 @@ class SimulationParameters:
         self.option = None
         self.option_name = None
         self.option_real_price = None
+        self.start_time = 0
+        self.maturity = 1
         self.time_to_maturity = 1
         self.plot_x_min = -2
         self.plot_x_max = 2

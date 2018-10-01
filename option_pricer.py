@@ -11,6 +11,8 @@ class OptionPricer:
         self.init_asset_price = 0
         self.sigma = 0
         self.mu = 0
+        self.start_time = 0
+        self.maturity = 1
 
     def set_risk_free_rate(self, r):
         self.risk_free_rate = r
@@ -24,14 +26,20 @@ class OptionPricer:
     def set_mu(self, mu):
         self.mu = mu
 
+    def set_start_time(self, start_time):
+        self.start_time = start_time
+
+    def set_maturity(self, maturity):
+        self.maturity = maturity
+
     def discount(self, value, time=1):
         return value / np.exp(self.risk_free_rate * time)
 
     def run_monte_carlo_simulations(self, simulations=1000, steps=100):
-        dt = 1 / steps
+        dt = (self.maturity - self.start_time) / steps
         for n in range(simulations):
             asset_price = self.init_asset_price
-            time = 0
+            time = self.start_time
             asset_prices = [asset_price]
             asset_time = [time]
 

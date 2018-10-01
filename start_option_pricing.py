@@ -16,8 +16,10 @@ if __name__ == "__main__":
                       help="Initial asset price (Default: 100)", default=100)
     parser.add_option("-s", "--sigma", dest="sigma", type="float",
                       help="Sigma (Default: 0.2)", default=0.2)
-    parser.add_option("-t", "--time_to_maturity", dest="t", type="float",
-                      help="Time to maturity in years (Default: 1)", default=1)
+    parser.add_option("-t", "--start_time", dest="start_time", type="float",
+                      help="Start time (Default: 0)", default=0)
+    parser.add_option("-m", "--maturity", dest="maturity", type="float",
+                      help="Maturity in years (Default: 1)", default=1)
     parser.add_option("-k", "--strike", dest="strike", type="float",
                       help="Strike of option (Default: 120)", default=120)
     parser.add_option("-p", "--binary_payoff", dest="binary_payoff", type="float",
@@ -55,7 +57,9 @@ if __name__ == "__main__":
     sigma = opts.sigma
 
     # Option parameters
-    time_to_maturity = opts.t
+    start_time = opts.start_time
+    maturity = opts.maturity
+    time_to_maturity = maturity - start_time
     strike = opts.strike
     binary_payoff = opts.binary_payoff
 
@@ -63,6 +67,8 @@ if __name__ == "__main__":
     params = SimulationParameters()
     params.runs = opts.runs # Number of simulation runs each running a MC pricing
     params.steps = opts.steps  # Number of asset price movements for each simulation
+    params.start_time = start_time
+    params.maturity = maturity
     params.time_to_maturity = time_to_maturity
     sims = opts.simulations
     list_of_simulations = [int(x) for x in sims.split(",")]
@@ -74,6 +80,8 @@ if __name__ == "__main__":
     option_pricer.set_init_asset_price(asset_price)
     option_pricer.set_mu(risk_free_interest_rate)
     option_pricer.set_sigma(sigma)
+    option_pricer.set_start_time(params.start_time)
+    option_pricer.set_maturity(params.maturity)
 
     simulation = Simulation(option_pricer)
 
